@@ -51,3 +51,7 @@ def main():
 
     else:
         print('Graph is wrong!!!')
+
+
+if __name__ == '__main__':
+    main()
