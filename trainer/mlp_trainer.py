@@ -37,7 +37,7 @@ def mlp_trainer(device=0,
     device = torch.device(device)
 
     if save_model:
-        if os.path.isdir(output_dir):
+        if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
 
         output_path = os.path.join(

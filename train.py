@@ -17,7 +17,7 @@ def main():
     parser.add_argument('--epochs', type=int, default=300)
     parser.add_argument('--runs', type=int, default=10)
     parser.add_argument('--save_model', type=bool, default=False)
-    parser.add_argument('--path', type=str, default='./model.pt')
+    parser.add_argument('--path', type=str, default='.')
     parser.add_argument('--dataset', type=str, default='ogbn-arxiv')
     args = parser.parse_args()
     print(args)
