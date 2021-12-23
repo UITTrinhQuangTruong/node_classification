@@ -4,6 +4,7 @@ from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from model.architectures import MLP
 from model.loss import nll_loss
 from model.metric import accuracy_mlp
+from logs.logger import Logger
 
 
 def train(model, x, y_true, train_idx, optimizer):
@@ -45,8 +46,9 @@ def mlp_trainer(device=0,
 
     model = MLP(x.size(-1), hidden_channels, dataset.num_classes,
                 num_layers, dropout).to(device)
-    print(x.size(-1), hidden_channels, dataset.num_classes, num_layers, dropout)
+
     evaluator = Evaluator(name=name_dataset)
+    logger = Logger(runs)
 
     best_valid_acc = 0
     for run in range(runs):
@@ -72,3 +74,6 @@ def mlp_trainer(device=0,
                     print(f'Save model in {output_path}')
                     best_valid_acc = valid_acc
                     torch.save(model.state_dict(), output_path)
+
+        logger.print_statistics(run)
+    logger.print_statistics()

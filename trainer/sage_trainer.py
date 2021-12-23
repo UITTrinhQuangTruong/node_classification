@@ -4,6 +4,7 @@ from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from model.architectures import SAGE
 from model.loss import nll_loss
 from model.metric import accuracy_sage
+from logs.logger import Logger
 
 
 def train(model, data, train_idx, optimizer):
@@ -47,6 +48,7 @@ def sage_trainer(device=0,
     data = data.to(device)
 
     evaluator = Evaluator(name='ogbn-products')
+    logger = Logger(runs)
 
     best_valid_acc = 0
     for run in range(runs):
@@ -70,3 +72,6 @@ def sage_trainer(device=0,
                     print(f'Save model in {output_path}')
                     best_valid_acc = valid_acc
                     torch.save(model.state_dict(), output_path)
+
+        logger.print_statistics(run)
+    logger.print_statistics()
