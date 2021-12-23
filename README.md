@@ -1,2 +1,1 @@
-# node_classification
-Mạng neural và thuật giải di truyền - CS410.M11
+# Mạng neural và thuật giải di truyền - CS410.M11
