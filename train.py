@@ -23,6 +23,7 @@ def main():
     print(args)
 
     if args.graph == 'mlp':
+        print('Train MLP model')
         mlp_trainer(args.device,
                     args.log_steps,
                     args.num_layers,
@@ -35,6 +36,7 @@ def main():
                     args.path,
                     args.dataset)
     elif args.graph == 'sage':
+        print('Train Sage model')
         sage_trainer(args.device,
                      args.log_steps,
                      args.num_layers,
@@ -46,3 +48,6 @@ def main():
                      args.save_model,
                      args.path,
                      args.dataset)
+
+    else:
+        print('Graph is wrong!!!')
