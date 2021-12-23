@@ -1,3 +1,5 @@
+import os
+
 import torch
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 
@@ -28,11 +30,18 @@ def mlp_trainer(device=0,
                 epochs=500,
                 runs=10,
                 save_model=False,
-                output_path='./model.pt',
+                output_dir='.',
                 name_dataset='ogbn-arxiv'):
 
     device = f'cuda:{0}' if torch.cuda.is_available() else 'cpu'
     device = torch.device(device)
+
+    if save_model:
+        if os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+
+        output_path = os.path.join(
+            output_dir, f'mlp_{runs}_{epochs}_{num_layers}.pt')
 
     dataset = PygNodePropPredDataset(name=name_dataset)
     split_idx = dataset.get_idx_split()

@@ -1,5 +1,8 @@
+import os
+
 import torch
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
+import torch_geometric.transforms as T
 
 from model.architectures import SAGE
 from model.loss import nll_loss
@@ -28,13 +31,20 @@ def sage_trainer(device=0,
                  epochs=300,
                  runs=10,
                  save_model=False,
-                 output_path='./model.pt',
+                 output_dir='.',
                  name_dataset='ogbn-arxiv'):
 
     device = f'cuda:{device}' if torch.cuda.is_available() else 'cpu'
     device = torch.device(device)
 
-    dataset = PygNodePropPredDataset(name='ogbn-products',
+    if save_model:
+        if os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+
+        output_path = os.path.join(
+            output_dir, f'sage_{runs}_{epochs}_{num_layers}.pt')
+
+    dataset = PygNodePropPredDataset(name=name_dataset,
                                      transform=T.ToSparseTensor())
     data = dataset[0]
 
