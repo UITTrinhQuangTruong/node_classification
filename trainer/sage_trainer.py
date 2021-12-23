@@ -57,6 +57,7 @@ def sage_trainer(device=0,
         for epoch in range(1, 1 + epochs):
             loss = train(model, data, train_idx, optimizer)
             result = accuracy_sage(model, data, split_idx, evaluator)
+            logger.add_result(run, result)
 
             if epoch % log_steps == 0:
                 train_acc, valid_acc, test_acc = result
