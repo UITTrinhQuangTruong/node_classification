@@ -59,7 +59,7 @@ class MLP(torch.nn.Module):
 class SAGE_norm(torch.nn.Module):
     def __init__(self, in_channels, hidden_channels, out_channels, num_layers,
                  dropout):
-        super(SAGE, self).__init__()
+        super(SAGE_norm, self).__init__()
 
         self.convs = torch.nn.ModuleList()
         self.convs.append(SAGEConv(in_channels, hidden_channels))
