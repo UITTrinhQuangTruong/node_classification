@@ -4,7 +4,7 @@ import torch
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 import torch_geometric.transforms as T
 
-from model.architectures import SAGE
+from model.architectures import SAGE, SAGE_norm
 from model.loss import nll_loss
 from model.metric import accuracy_sage
 from logs.logger import Logger
@@ -38,7 +38,7 @@ def sage_trainer(device=0,
     device = torch.device(device)
 
     if save_model:
-        if os.path.isdir(output_dir):
+        if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
 
         output_path = os.path.join(
@@ -46,18 +46,25 @@ def sage_trainer(device=0,
 
     dataset = PygNodePropPredDataset(name=name_dataset,
                                      transform=T.ToSparseTensor())
-    data = dataset[0]
 
+    data = dataset[0]
+    if name_dataset == 'ogbn-arxiv':
+        data.adj_t = data.adj_t.to_symmetric()
+
+        model = SAGE_norm(data.num_features, hidden_channels,
+                          dataset.num_classes, num_layers,
+                          dropout).to(device)
+
+    else:
+        model = SAGE(data.num_features, hidden_channels,
+                     dataset.num_classes, num_layers,
+                     dropout).to(device)
     split_idx = dataset.get_idx_split()
     train_idx = split_idx['train'].to(device)
 
-    model = SAGE(data.num_features, hidden_channels,
-                 dataset.num_classes, num_layers,
-                 dropout).to(device)
-
     data = data.to(device)
 
-    evaluator = Evaluator(name='ogbn-products')
+    evaluator = Evaluator(name=name_dataset)
     logger = Logger(runs)
 
     best_valid_acc = 0
