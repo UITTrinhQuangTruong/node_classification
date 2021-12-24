@@ -44,7 +44,7 @@ def sage_trainer(device=0,
             os.makedirs(output_dir)
 
         output_path = os.path.join(
-            output_dir, f'sage_{runs}_{epochs}_{num_layers}.pt')
+            output_dir, f'sage_{name_dataset}_r{runs}_e{epochs}_n{num_layers}.pt')
 
     dataset = load_data(name_dataset, transform=True)
     data = dataset[0]
