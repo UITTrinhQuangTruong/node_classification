@@ -4,6 +4,8 @@ import torch
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 import torch_geometric.transforms as T
 
+
+from tools.data import load_data
 from model.architectures import SAGE, SAGE_norm
 from model.loss import nll_loss
 from model.metric import accuracy_sage
@@ -44,11 +46,17 @@ def sage_trainer(device=0,
         output_path = os.path.join(
             output_dir, f'sage_{runs}_{epochs}_{num_layers}.pt')
 
-    dataset = PygNodePropPredDataset(name=name_dataset,
-                                     transform=T.ToSparseTensor())
-
+    dataset = load_data(name_dataset, transform=True)
     data = dataset[0]
-    if name_dataset == 'ogbn-arxiv':
+    if name_dataset == 'cora':
+        split_idx = {'train': data.train_mask.nonzero().reshape(-1),
+                     'test': data.test_mask.nonzero().reshape(-1),
+                     'valid': data.val_mask.nonzero().reshape(-1)}
+    else:
+        split_idx = dataset.get_idx_split()
+
+    train_idx = split_idx['train'].to(device)
+    if name_dataset == 'ogbn-arxiv' or name_dataset == 'cora':
         data.adj_t = data.adj_t.to_symmetric()
 
         model = SAGE_norm(data.num_features, hidden_channels,
@@ -59,8 +67,6 @@ def sage_trainer(device=0,
         model = SAGE(data.num_features, hidden_channels,
                      dataset.num_classes, num_layers,
                      dropout).to(device)
-    split_idx = dataset.get_idx_split()
-    train_idx = split_idx['train'].to(device)
 
     data = data.to(device)
 
