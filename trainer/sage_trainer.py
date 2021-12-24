@@ -57,7 +57,7 @@ def sage_trainer(device=0,
         split_idx = dataset.get_idx_split()
 
     train_idx = split_idx['train'].to(device)
-    if name_dataset == 'ogbn-arxiv':
+    if name_dataset == 'ogbn-arxiv' or name_dataset == 'cora':
         data.adj_t = data.adj_t.to_symmetric()
 
         model = SAGE_norm(data.num_features, hidden_channels,
