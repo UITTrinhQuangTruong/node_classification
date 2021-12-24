@@ -52,6 +52,7 @@ def sage_trainer(device=0,
         split_idx = {'train': data.train_mask.nonzero().reshape(-1),
                      'test': data.test_mask.nonzero().reshape(-1),
                      'valid': data.val_mask.nonzero().reshape(-1)}
+        data.y = data.y.reshape(-1, 1)
     else:
         split_idx = dataset.get_idx_split()
 
