@@ -7,6 +7,8 @@ from model.architectures import MLP
 from model.loss import nll_loss
 from model.metric import accuracy_mlp
 from logs.logger import Logger
+from tools.data import load_data
+from model.metric import Evaluator
 
 
 def train(model, x, y_true, train_idx, optimizer):
@@ -43,9 +45,16 @@ def mlp_trainer(device=0,
         output_path = os.path.join(
             output_dir, f'mlp_{runs}_{epochs}_{num_layers}.pt')
 
-    dataset = PygNodePropPredDataset(name=name_dataset)
-    split_idx = dataset.get_idx_split()
+    dataset = load_data(name=name_dataset, transform=False)
     data = dataset[0]
+
+    if name_dataset == 'cora':
+        split_idx = {'train': data.train_mask.nonzero().reshape(-1),
+                     'test': data.test_mask.nonzero().reshape(-1),
+                     'valid': data.val_mask.nonzero().reshape(-1)}
+        data.y = data.y.reshape(-1, 1)
+    else:
+        split_idx = dataset.get_idx_split()
 
     x = data.x
     x = x.to(device)
@@ -56,7 +65,7 @@ def mlp_trainer(device=0,
     model = MLP(x.size(-1), hidden_channels, dataset.num_classes,
                 num_layers, dropout).to(device)
 
-    evaluator = Evaluator(name=name_dataset)
+    evaluator = Evaluator()
     logger = Logger(runs)
 
     best_valid_acc = 0
