@@ -2,7 +2,7 @@ import os
 
 import torch
 from model.metric import Evaluator
-import torch_geometric.transforms as T
+from torchsummary import summary
 
 
 from tools.data import load_data
@@ -70,6 +70,9 @@ def sage_trainer(device=0,
                      dropout).to(device)
 
     data = data.to(device)
+
+    # summary model
+    summary(model, (hidden_channels, data.num_features))
 
     evaluator = Evaluator()
     logger = Logger(runs)

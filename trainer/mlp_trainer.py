@@ -2,6 +2,7 @@ import os
 
 import torch
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
+from torchsummary import summary
 
 from model.architectures import MLP
 from model.loss import nll_loss
@@ -64,6 +65,8 @@ def mlp_trainer(device=0,
 
     model = MLP(x.size(-1), hidden_channels, dataset.num_classes,
                 num_layers, dropout).to(device)
+    # summary model
+    summary(model, (hidden_channels, x.size(-1)))
 
     evaluator = Evaluator()
     logger = Logger(runs)
