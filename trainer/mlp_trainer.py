@@ -43,7 +43,7 @@ def mlp_trainer(device=0,
             os.makedirs(output_dir)
 
         output_path = os.path.join(
-            output_dir, f'mlp_{runs}_{epochs}_{num_layers}.pt')
+            output_dir, f'mlp_{name_dataset}_r{runs}_e{epochs}_n{num_layers}.pt')
 
     dataset = load_data(name=name_dataset, transform=False)
     data = dataset[0]
