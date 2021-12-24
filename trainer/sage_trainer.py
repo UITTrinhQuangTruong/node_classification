@@ -1,7 +1,7 @@
 import os
 
 import torch
-from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
+from model.metric import Evaluator
 import torch_geometric.transforms as T
 
 
@@ -70,7 +70,7 @@ def sage_trainer(device=0,
 
     data = data.to(device)
 
-    evaluator = Evaluator(name=name_dataset)
+    evaluator = Evaluator()
     logger = Logger(runs)
 
     best_valid_acc = 0
