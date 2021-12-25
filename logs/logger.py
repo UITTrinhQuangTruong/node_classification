@@ -70,7 +70,6 @@ class Logger(object):
 
         mean_loss = torch.mean(losses, 0)
         std_loss = torch.std(losses, 0)
-        print(mean_results, results.std(0))
 
         axes[1].fill_between(epochs, (train_mean-train_std).numpy(),
                              (train_mean+train_std).numpy(), alpha=0.5)
