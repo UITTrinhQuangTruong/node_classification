@@ -50,36 +50,54 @@ class Logger(object):
             r = best_result[:, 3]
             print(f'   Final Test: {r.mean():.2f} ± {r.std():.2f}')
 
-    def visualize(self, save_plot=True, output_dir='./visualize', show_plot=False):
+    def visualize(self, save_plot=True, output_dir='./visualize', output_name='test', show_plot=False):
 
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
         plt.style.use("ggplot")
-        results = torch.tensor(self.results)
-        for run in range(len(results)):
-            fig, axes = plt.subplots(2, 1, figsize=(8, 8))
+        results = torch.tensor(self.results, dtype=torch.float)
+        losses = torch.tensor(self.losses, dtype=torch.float)
+        fig, axes = plt.subplots(2, 1, figsize=(8, 8))
 
-            epochs = list(range(len(results[run])))
-            train_acc, valid_acc, test_acc = results[run,
-                                                     :, 0], results[run, :, 1], results[run, :, 2]
+        epochs = list(range(len(results[0])))
 
-            axes[1].plot(epochs, train_acc.numpy(), label="train_acc")
-            axes[1].plot(epochs, valid_acc.numpy(), label="valid_acc")
-            axes[1].plot(epochs, test_acc.numpy(), label="test_acc")
-            axes[0].plot(epochs, self.losses[run], label="train_loss")
+        mean_results = torch.mean(results, 0)
+        std_results = torch.std(results, 0)
+        train_mean, valid_mean, test_mean = mean_results[:,
+                                                         0], mean_results[:, 1], mean_results[:, 2]
+        train_std, valid_std, test_std = std_results[:,
+                                                     0], std_results[:, 1], std_results[:, 2]
 
-            fig.suptitle("Training Loss and Accuracy")
-            fig.text(0.5, 0.04, '# Epochs', ha='center', va='center')
-            fig.text(0.06, 0.5, 'Accuracy / Loss', ha='center',
-                     va='center', rotation='vertical')
-            plt.legend(loc="lower left")
+        mean_loss = torch.mean(losses, 0)
+        std_loss = torch.std(losses, 0)
+        print(mean_results, results.std(0))
 
-            if show_plot:
-                plt.show()
+        axes[1].fill_between(epochs, (train_mean-train_std).numpy(),
+                             (train_mean+train_std).numpy(), alpha=0.5)
+        axes[1].fill_between(epochs, (valid_mean-valid_std).numpy(),
+                             (valid_mean+valid_std).numpy(), alpha=0.5)
+        axes[1].fill_between(epochs, (test_mean-test_std).numpy(),
+                             (test_mean+test_std).numpy(), alpha=0.5)
+        axes[1].plot(epochs, train_mean.numpy(), label="train_acc")
+        axes[1].plot(epochs, valid_mean.numpy(), label="valid_acc")
+        axes[1].plot(epochs, test_mean.numpy(), label="test_acc")
 
-            if save_plot:
-                output_path = os.path.join(
-                    output_dir, f"run_{run}.png")
-                plt.savefig(output_path, bbox_inches='tight', dpi=150)
+        axes[0].fill_between(epochs, (mean_loss-std_loss).numpy(),
+                             (mean_loss+std_loss).numpy(), alpha=0.5)
+        axes[0].plot(epochs, mean_loss, label="train_loss")
 
-                print(f'Save plot in {output_path}')
+        fig.suptitle(f"Training Loss and Accuracy of {output_name}")
+        fig.text(0.5, 0.04, '# Epochs', ha='center', va='center')
+        fig.text(0.06, 0.5, 'Loss | Accuracy', ha='center',
+                 va='center', rotation='vertical')
+        plt.legend(loc="lower left")
+
+        if show_plot:
+            plt.show()
+
+        if save_plot:
+            output_path = os.path.join(
+                output_dir, f'{output_name}.png')
+            plt.savefig(output_path, bbox_inches='tight', dpi=150)
+
+            print(f'Save plot in {output_path}')
