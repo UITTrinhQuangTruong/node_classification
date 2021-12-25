@@ -88,7 +88,7 @@ class Logger(object):
 
         fig.suptitle(f"Training Loss and Accuracy of {output_name}")
         fig.text(0.5, 0.04, '# Epochs', ha='center', va='center')
-        fig.text(0.06, 0.5, 'Loss | Accuracy', ha='center',
+        fig.text(0.06, 0.5, 'Accuracy | Loss', ha='center',
                  va='center', rotation='vertical')
         plt.legend(loc="lower left")
 
