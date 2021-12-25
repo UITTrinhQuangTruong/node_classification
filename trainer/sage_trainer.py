@@ -71,6 +71,7 @@ def sage_trainer(device=0,
     data = data.to(device)
 
     # summary model
+    # summary(model, (hidden_channels, data.num_features))
     print(model)
 
     evaluator = Evaluator()
