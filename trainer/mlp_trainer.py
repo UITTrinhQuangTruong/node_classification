@@ -40,12 +40,13 @@ def mlp_trainer(device=0,
     device = f'cuda:{0}' if torch.cuda.is_available() else 'cpu'
     device = torch.device(device)
 
+    output_name = f'sage_{name_dataset}_r{runs}_e{epochs}_n{num_layers}'
     if save_model:
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
 
         output_path = os.path.join(
-            output_dir, f'mlp_{name_dataset}_r{runs}_e{epochs}_n{num_layers}.pt')
+            output_dir, f'{output_name}.pt')
 
     dataset = load_data(name=name_dataset, transform=False)
     data = dataset[0]
@@ -101,5 +102,5 @@ def mlp_trainer(device=0,
 
         logger.print_statistics(run)
     logger.print_statistics()
-    logger.visualize(save_plot=save_plot,
-                     output_dir=output_dir, show_plot=show_plot)
+    logger.visualize(save_plot=save_plot, output_dir=output_dir,
+                     output_name=output_name, show_plot=show_plot)
