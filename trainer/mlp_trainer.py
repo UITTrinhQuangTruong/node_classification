@@ -32,6 +32,8 @@ def mlp_trainer(device=0,
                 epochs=500,
                 runs=10,
                 save_model=False,
+                save_plot=False,
+                show_plot=False,
                 output_dir='.',
                 name_dataset='ogbn-arxiv'):
 
@@ -98,3 +100,5 @@ def mlp_trainer(device=0,
 
         logger.print_statistics(run)
     logger.print_statistics()
+    logger.visualize(save_plot=save_plot,
+                     output_dir=output_dir, show_plot=show_plot)

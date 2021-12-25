@@ -1,3 +1,5 @@
+import os
+import matplotlib.pyplot as plt
 import torch
 
 
@@ -5,11 +7,16 @@ class Logger(object):
     def __init__(self, runs, info=None):
         self.info = info
         self.results = [[] for _ in range(runs)]
+        self.losses = [[] for _ in range(runs)]
 
     def add_result(self, run, result):
         assert len(result) == 3
         assert run >= 0 and run < len(self.results)
         self.results[run].append(result)
+
+    def add_loss(self, run, loss):
+        assert run >= 0 and run < len(self.results)
+        self.losses[run].append(loss)
 
     def print_statistics(self, run=None):
         if run is not None:
@@ -42,3 +49,34 @@ class Logger(object):
             print(f'  Final Train: {r.mean():.2f} ± {r.std():.2f}')
             r = best_result[:, 3]
             print(f'   Final Test: {r.mean():.2f} ± {r.std():.2f}')
+
+    def visualize(self, save_plot=True, output_dir='./visualize', show_plot=False):
+
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+        plt.style.use("ggplot")
+        results = torch.tensor(self.results)
+        for run in range(len(results)):
+            fig, axes = plt.subplots(2, 1, figsize=(8, 8))
+
+            epochs = list(range(len(results[run])))
+            train_acc, valid_acc, test_acc = results[run,
+                                                     :, 0], results[run, :, 1], results[run, :, 2]
+
+            axes[1].plot(epochs, train_acc.numpy(), label="train_acc")
+            axes[1].plot(epochs, valid_acc.numpy(), label="valid_acc")
+            axes[1].plot(epochs, test_acc.numpy(), label="test_acc")
+            axes[0].plot(epochs, self.losses[run], label="train_loss")
+
+            fig.suptitle("Training Loss and Accuracy")
+            fig.text(0.5, 0.04, '# Epochs', ha='center', va='center')
+            fig.text(0.06, 0.5, 'Accuracy / Loss', ha='center',
+                     va='center', rotation='vertical')
+            plt.legend(loc="lower left")
+
+            if show_plot:
+                plt.show()
+
+            if save_plot:
+                plt.savefig(os.path.join(
+                    output_dir, f"run_{run}.png"), bbox_inches='tight', dpi=150)
