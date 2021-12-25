@@ -82,6 +82,7 @@ def mlp_trainer(device=0,
             result = accuracy_mlp(model, x, y_true, split_idx, evaluator)
             train_acc, valid_acc, test_acc = result
             logger.add_result(run, result)
+            logger.add_loss(run, loss)
 
             if epoch % log_steps == 0:
                 print(f'Run: {run + 1:02d}, '
