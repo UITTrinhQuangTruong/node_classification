@@ -1,7 +1,6 @@
 import os
 
 import torch
-from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from torchsummary import summary
 
 from model.architectures import MLP
