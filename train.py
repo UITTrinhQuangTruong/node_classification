@@ -17,6 +17,8 @@ def main():
     parser.add_argument('--epochs', type=int, default=300)
     parser.add_argument('--runs', type=int, default=10)
     parser.add_argument('--save_model', type=bool, default=False)
+    parser.add_argument('--save_plot', type=bool, default=False)
+    parser.add_argument('--show_plot', type=bool, default=False)
     parser.add_argument('--path', type=str, default='.')
     parser.add_argument('--dataset', type=str, default='ogbn-arxiv')
     args = parser.parse_args()
@@ -33,6 +35,8 @@ def main():
                     args.epochs,
                     args.runs,
                     args.save_model,
+                    args.save_plot,
+                    args.show_plot,
                     args.path,
                     args.dataset)
     elif args.graph == 'sage':
@@ -46,6 +50,8 @@ def main():
                      args.epochs,
                      args.runs,
                      args.save_model,
+                     args.save_plot,
+                     args.show_plot,
                      args.path,
                      args.dataset)
 

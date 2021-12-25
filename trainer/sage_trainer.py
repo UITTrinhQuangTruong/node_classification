@@ -32,6 +32,8 @@ def sage_trainer(device=0,
                  epochs=300,
                  runs=10,
                  save_model=False,
+                 save_plot=False,
+                 show_plot=False,
                  output_dir='.',
                  name_dataset='ogbn-arxiv'):
 
@@ -85,6 +87,7 @@ def sage_trainer(device=0,
             loss = train(model, data, train_idx, optimizer)
             result = accuracy_sage(model, data, split_idx, evaluator)
             logger.add_result(run, result)
+            logger.add_loss(run, loss)
             train_acc, valid_acc, test_acc = result
 
             if epoch % log_steps == 0:
@@ -103,3 +106,5 @@ def sage_trainer(device=0,
 
         logger.print_statistics(run)
     logger.print_statistics()
+    logger.visualize(save_plot=save_plot,
+                     output_dir=output_dir, show_plot=show_plot)
