@@ -78,5 +78,8 @@ class Logger(object):
                 plt.show()
 
             if save_plot:
-                plt.savefig(os.path.join(
-                    output_dir, f"run_{run}.png"), bbox_inches='tight', dpi=150)
+                output_path = os.path.join(
+                    output_dir, f"run_{run}.png")
+                plt.savefig(output_path, bbox_inches='tight', dpi=150)
+
+                print(f'Save plot in {output_path}')
