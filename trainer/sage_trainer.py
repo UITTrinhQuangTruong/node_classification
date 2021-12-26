@@ -40,7 +40,7 @@ def sage_trainer(device=0,
     device = f'cuda:{device}' if torch.cuda.is_available() else 'cpu'
     device = torch.device(device)
 
-    output_name = f'sage_{name_dataset}_r{runs}_e{epochs}_n{num_layers}'
+    output_name = f'sage_{name_dataset}_r{runs}_e{epochs}_n{num_layers}_d{dropout}'
     if save_model:
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir)
