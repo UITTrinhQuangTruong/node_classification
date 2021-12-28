@@ -67,9 +67,9 @@ def sage_trainer(device=0,
                           dropout).to(device)
 
     else:
-        model = SAGE(data.num_features, hidden_channels,
-                     dataset.num_classes, num_layers,
-                     dropout).to(device)
+        model = SAGE_norm(data.num_features, hidden_channels,
+                          dataset.num_classes, num_layers,
+                          dropout).to(device)
 
     data = data.to(device)
 
