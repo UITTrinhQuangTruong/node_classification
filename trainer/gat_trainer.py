@@ -1,6 +1,7 @@
 import argparse
 import math
 import time
+from logs.logger import Logger
 from torch_geometric.datasets import Planetoid
 import numpy as np
 import torch as th
@@ -132,7 +133,8 @@ def train(
     optimizer.zero_grad()
 
     feat = graph.ndata["feat"].to(device)
-    perturb = th.FloatTensor(*feat.shape).uniform_(-step_size, step_size).to(device)
+    perturb = th.FloatTensor(
+        *feat.shape).uniform_(-step_size, step_size).to(device)
 
     unlabel_idx = list(set(range(perturb.shape[0])) - set(train_idx))
     perturb.data[unlabel_idx] *= amp
@@ -199,6 +201,7 @@ def evaluate(model, graph, labels, train_idx, val_idx, test_idx, use_labels, eva
 
 
 def run(
+    logger,
     graph,
     labels,
     train_idx,
@@ -254,6 +257,7 @@ def run(
             optimizer,
             use_labels,
         )
+        logger.add_loss(n_running, loss)
         acc = compute_acc(pred[train_idx], labels[train_idx], evaluator)
 
         train_acc, val_acc, test_acc, train_loss, val_loss, test_loss = evaluate(
@@ -266,7 +270,7 @@ def run(
             use_labels,
             evaluator,
         )
-
+        logger.add_loss(n_running, [train_acc, val_acc, test_acc])
         toc = time.time()
         total_time += toc - tic
 
@@ -276,7 +280,8 @@ def run(
             best_test_acc = test_acc
 
     print("*" * 50)
-    print(f"Average epoch time: {total_time / epochs}, Test acc: {best_test_acc}")
+    print(
+        f"Average epoch time: {total_time / epochs}, Test acc: {best_test_acc}")
 
     return best_val_acc, best_test_acc
 
@@ -303,12 +308,17 @@ def gat_trainer(
     n_heads=3,
     dropout=0.75,
     attn_drop=0.05,
+    save_plot=False,
+    show_plot=False,
+    output_dir='.'
 ):
     global device, in_feats, n_classes, epsilon
     if cpu:
         device = th.device("cpu")
     else:
         device = th.device("cuda:%d" % gpu)
+
+    output_name = f'gat_{name_dataset}_r{runs}_e{epochs}_n{n_layers}_d{dropout}'
 
     # load data
     if name_dataset == "ogbn-arxiv":
@@ -322,7 +332,8 @@ def gat_trainer(
         graph, labels = data[0]
 
     elif name_dataset == "cora":
-        dataset = Planetoid("Planetoid", name="Cora", transform=T.ToSparseTensor())
+        dataset = Planetoid("Planetoid", name="Cora",
+                            transform=T.ToSparseTensor())
         data = dataset[0]
         split_idx = {
             "train": data.train_mask.nonzero().reshape(-1),
@@ -334,6 +345,7 @@ def gat_trainer(
         graph, labels = data
 
     evaluator = Evaluator()
+    logger = Logger(runs)
     # add reverse edges
     srcs, dsts = graph.all_edges()
     graph.add_edges(dsts, srcs)
@@ -360,13 +372,14 @@ def gat_trainer(
     for i in range(1, runs + 1):
         print(f"Run time = {i}")
         val_acc, test_acc = run(
+            logger=logger,
             graph=graph,
             labels=labels,
             train_idx=train_idx,
             val_idx=val_idx,
             test_idx=test_idx,
             evaluator=evaluator,
-            n_running=i,
+            n_running=i-1,
             use_labels=use_labels,
             lr=lr,
             wd=wd,
@@ -389,3 +402,5 @@ def gat_trainer(
     print(f"Average val accuracy: {np.mean(val_accs)} ± {np.std(val_accs)}")
     print(f"Average test accuracy: {np.mean(test_accs)} ± {np.std(test_accs)}")
     print(f"Number of params: {count_parameters()}")
+    logger.visualize(save_plot=save_plot, output_dir=output_dir,
+                     output_name=output_name, show_plot=show_plot)
