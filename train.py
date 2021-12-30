@@ -94,7 +94,7 @@ def main():
             attn_drop=args.attn_drop,
             vanilla=args.vanilla,
             wd=args.wd,
-            save_plot=args.save_model,
+            save_plot=args.save_plot,
             output_dir=args.path
         )
     else:
